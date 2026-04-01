@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --color-primario: #d63384;
+            /* 1. AQUÍ PONES LA IMAGEN QUE HARÁ DE DEGRADADO EN LAS PÁGINAS */
+            --imagen-degradado-paginas: url('TU_IMAGEN_DEGRADADO_AQUI.jpg');
+        }
+
+        body {
+            margin: 0; padding: 0;
+            /* 2. AQUÍ PONES LA IMAGEN DE FONDO QUE VA DETRÁS DE TODO */
+            background: url('TU_IMAGEN_DE_FONDO_GENERAL.jpg'), #fce1e4; 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .book {
+            width: 350px;
+            height: 500px;
+            position: relative;
+            perspective: 1500px;
+            z-index: 10;
+            transition: opacity 1s, transform 1s;
+        }
+
+        .book.fade-out {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        .page {
+            width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0;
+            
+            /* Ajuste de imagen de fondo compartida */
+            background-image: var(--imagen-degradado-paginas);
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.4); 
+            
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px); 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-origin: left;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            backface-visibility: hidden;
+            overflow: hidden;
+            border-radius: 0 15px 15px 0; 
+        }
+
+        .page.flipped { transform: rotateY(-180deg); }
+
+        /* CHIBIS */
+        .chibi {
+            position: absolute; width: 75px; height: auto;
+            z-index: 5; pointer-events: none;
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+        }
+        .chibi-left { bottom: 10px; left: 10px; }
+        .chibi-right { bottom: 10px; right: 10px; }
+
+        /* PORTADA PERSONALIZADA */
+        .cover-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('TU_IMAGEN_PORTADA.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+        .cover-content { position: relative; z-index: 2; width: 100%; }
+
+        /* ESCENA DEL GIF FINAL */
+        #final-stage {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            flex-direction: column;
+            background: rgba(0,0,0,0.4); 
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes revealGif {
+            0% { transform: scale(0.1); opacity: 0; }
+            100% { transform: scale(1.5); opacity: 1; }
+        }
+
+        .grand-reveal-gif {
+            width: 200px;
+            animation: revealGif 2s forwards ease-out;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        h1 { color: var(--color-primario); font-size: 1.6rem; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
+        p { color: #333; font-size: 0.95rem; line-height: 1.4; font-weight: 500; }
+        
+        /* Ocultamos el reproductor visualmente pero lo dejamos funcional */
+        audio { position: fixed; bottom: -100px; opacity: 0; }
+    </style>
+</head>
+<body>
+
+    <audio id="background-music" loop>
+        <source src="tu-cancion.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="final-stage">
+        <img src="tu-gif-final.gif" class="grand-reveal-gif">
+        <h1 style="margin-top: 40px; color: white; text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">¡FELIZ CUMPLEAÑOS!</h1>
+    </div>
+
+    <div class="book" id="myBook">
+        
+        <div class="page" onclick="startExperience(this)">
+            <div class="cover-bg"></div>
+            <div class="cover-content">
+                <div style="font-size: 3rem; margin-top: 50px;">🎂</div>
+                <h1>Para mi Amiga Brenda</h1>
+                <p>Haz clic para abrir</p>
+            </div>
+            <img src="chibi1.png" class="chibi chibi-left">
+            <img src="chibi2.png" class="chibi chibi-right">
+        </div>
+
+        <div class="page" onclick="this.classList.toggle('flipped')">
+            <h1>Nuestra Amistad</h1>
+            <p>Gracias por todos los momentos compartidos, jamas olvidare como te conoci y la gran amistad que consegui.</p>
+            <div style="width: 70%; height: 100px; background: rgba(255,255,255,0.3); border: 2px solid white; margin: 15px; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="tu-foto-1.jpg" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto">
+            </div>
+            <img src="chibi3.png" class="chibi chibi-left">
+            <img src="chibi4.png" class="chibi chibi-right">
+        </div>
+
+        <div class="page" onclick="this.classList.toggle('flipped')">
+            <h1>Tu Gran Año</h1>
+            <p>Espero que este año, puedas cumplir muchos de tus sueños y metas, felices 25 años.</p>
+            <div style="font-size: 2.5rem; margin-top: 20px;">✨🚀</div>
+            <img src="chibi5.png" class="chibi chibi-left">
+            <img src="chibi6.png" class="chibi chibi-right">
+        </div>
+
+        <div class="page" onclick="this.classList.toggle('flipped')">
+            <h1>Mis Deseos</h1>
+            <p>Espero seas muy feliz y recibas muchos saludos por que eres una gran persona.</p>
+            <div style="font-size: 2.5rem; margin-top: 20px;">💖</div>
+            <img src="chibi7.png" class="chibi chibi-left">
+            <img src="chibi8.png" class="chibi chibi-right">
+        </div>
+
+        <div class="page" onclick="triggerFinalReveal()">
+            <h1>Un ultimo agradecimiento</h1>
+            <p>Eres una amistad invaluable que nadie te haga dudar la gran amiga que sos Tkm.</p>
+            <div style="font-size: 3.5rem; margin-top: 30px;">🎁</div>
+            <img src="chibi9.png" class="chibi chibi-left">
+            <img src="chibi10.png" class="chibi chibi-right">
+        </div>
+
+    </div>
+
+    <script>
+        const pages = document.querySelectorAll('.page');
+        const book = document.getElementById('myBook');
+        const finalStage = document.getElementById('final-stage');
+        const music = document.getElementById('background-music');
+
+        // Organizar capas iniciales
+        pages.forEach((page, index) => {
+            page.style.zIndex = pages.length - index;
+        });
+
+        function startExperience(coverPage) {
+            // Girar la portada
+            coverPage.classList.add('flipped');
+            
+            // Reproducir música (el navegador lo permite por el clic del usuario)
+            if (music) {
+                music.play().catch(e => console.log("Error al reproducir audio:", e));
+            }
+        }
+
+        function triggerFinalReveal() {
+            book.classList.add('fade-out');
+            setTimeout(() => {
+                book.style.display = 'none';
+                finalStage.style.display = 'flex';
+                confetti({
+                    particleCount: 250,
+                    spread: 100,
+                    origin: { y: 0.6 }
+                });
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
